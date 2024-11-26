@@ -20,6 +20,6 @@ async fn main() -> Result<()> {
         println!("Published: {}", message);
 
         counter += 1;
-        sleep(Duration::from_secs(1)).await;
+        sleep(Duration::from_secs(2)).await;
     }
 }
