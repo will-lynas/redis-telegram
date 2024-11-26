@@ -3,6 +3,17 @@ name = "redis-telegram"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "pub"
+path = "src/pub.rs"
+
+[[bin]]
+name = "sub"
+path = "src/sub.rs"
+
 [dependencies]
 anyhow = "1.0.93"
 dotenvy = "0.15.7"
+redis = { version = "0.27", features = ["tokio-comp"] }
+tokio = { version = "1", features = ["full"] }
+tokio-stream = "0.1.16"
