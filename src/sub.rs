@@ -1,7 +1,8 @@
 use anyhow::Result;
 use dotenvy::dotenv;
-use std::env;
-use teloxide::{prelude::Requester, Bot};
+use std::{env, time::Duration};
+use teloxide::{prelude::Requester, Bot, RequestError};
+use tokio::time::sleep;
 use tokio_stream::StreamExt;
 
 #[tokio::main]
@@ -24,7 +25,12 @@ async fn main() -> Result<()> {
     while let Some(msg) = message_stream.next().await {
         let payload: String = msg.get_payload()?;
         println!("Received: {}", &payload);
-        bot.send_message(chat_id.clone(), payload).await?;
+        while let Err(RequestError::RetryAfter(seconds)) =
+            bot.send_message(chat_id.clone(), &payload).await
+        {
+            println!("Rate limited. Retrying in {seconds} seconds");
+            sleep(Duration::from_secs(1)).await;
+        }
     }
 
     Ok(())
