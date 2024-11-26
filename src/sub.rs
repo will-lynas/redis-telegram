@@ -25,11 +25,19 @@ async fn main() -> Result<()> {
     while let Some(msg) = message_stream.next().await {
         let payload: String = msg.get_payload()?;
         println!("Received: {}", &payload);
-        while let Err(RequestError::RetryAfter(seconds)) =
-            bot.send_message(chat_id.clone(), &payload).await
-        {
-            println!("Rate limited. Retrying in {seconds} seconds");
-            sleep(Duration::from_secs(1)).await;
+        loop {
+            match bot.send_message(chat_id.clone(), &payload).await {
+                Ok(_) => break,
+                Err(err) => {
+                    match err {
+                        RequestError::RetryAfter(seconds) => {
+                            println!("Rate limited for the next {seconds} seconds")
+                        }
+                        err => println!("Error sending message: {err}"),
+                    }
+                    sleep(Duration::from_secs(1)).await;
+                }
+            }
         }
     }
 
