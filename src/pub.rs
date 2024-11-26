@@ -8,7 +8,7 @@ use tokio::time::sleep;
 async fn main() -> Result<()> {
     dotenv()?;
 
-    let queue_name = env::var("QUEUE_NAME")?;
+    let queue_name = env::var("CHANNEL")?;
 
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_multiplexed_tokio_connection().await?;
