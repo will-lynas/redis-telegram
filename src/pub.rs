@@ -8,7 +8,7 @@ use tokio::time::sleep;
 async fn main() -> Result<()> {
     dotenv()?;
 
-    let queue_name = env::var("CHANNEL")?;
+    let channel = env::var("CHANNEL")?;
 
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_multiplexed_tokio_connection().await?;
@@ -16,7 +16,7 @@ async fn main() -> Result<()> {
     let mut counter = 1;
     loop {
         let message = format!("Message {}", counter);
-        con.publish::<_, _, ()>(&queue_name, &message).await?;
+        con.publish::<_, _, ()>(&channel, &message).await?;
         println!("Published: {}", message);
 
         counter += 1;

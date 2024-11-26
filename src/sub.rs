@@ -7,13 +7,13 @@ use tokio_stream::StreamExt;
 async fn main() -> Result<()> {
     dotenv()?;
 
-    let queue_name = env::var("CHANNEL")?;
+    let channel = env::var("CHANNEL")?;
 
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut pubsub = client.get_async_pubsub().await?;
-    pubsub.subscribe(&queue_name).await?;
+    pubsub.subscribe(&channel).await?;
 
-    println!("Subscribed to channel: {}", queue_name);
+    println!("Subscribed to channel: {}", channel);
 
     let mut message_stream = pubsub.on_message();
 
