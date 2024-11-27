@@ -12,7 +12,11 @@ async fn main() -> Result<()> {
     dotenv()?;
 
     let channel = env::var("CHANNEL")?;
-    let chat_id = env::var("CHAT_ID")?;
+    let chat_id: i64 = env::var("CHAT_ID")?.parse()?;
+    let thread_id: Option<i32> = match env::var("THREAD_ID") {
+        Ok(s) => Some(s.parse()?),
+        Err(_) => None,
+    };
 
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut con = client.get_multiplexed_tokio_connection().await?;
@@ -22,8 +26,8 @@ async fn main() -> Result<()> {
         let message = &Message {
             text: counter.to_string(),
             is_markdown: false,
-            chat_id: chat_id.parse()?,
-            thread_id: None,
+            chat_id,
+            thread_id,
         };
         let message_ser = serde_json::to_string(&message)?;
         con.publish::<_, _, ()>(&channel, &message_ser).await?;
