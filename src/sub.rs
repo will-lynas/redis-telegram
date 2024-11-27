@@ -2,7 +2,12 @@ use anyhow::Result;
 use dotenvy::dotenv;
 use schema::Message;
 use std::{env, time::Duration};
-use teloxide::{prelude::Requester, types::ChatId, Bot, RequestError};
+use teloxide::{
+    payloads::SendMessageSetters,
+    prelude::Requester,
+    types::{ChatId, ParseMode},
+    Bot, RequestError,
+};
 use tokio::time::sleep;
 use tokio_stream::StreamExt;
 
@@ -36,7 +41,11 @@ async fn main() -> Result<()> {
         };
         println!("Received: {:#?}", message);
 
-        let send_message = bot.send_message(ChatId(message.chat_id), &message.text);
+        let mut send_message = bot.send_message(ChatId(message.chat_id), &message.text);
+
+        if message.is_markdown {
+            send_message = send_message.parse_mode(ParseMode::MarkdownV2)
+        }
 
         loop {
             match send_message.clone().await {
