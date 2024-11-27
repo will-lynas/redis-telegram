@@ -1,5 +1,6 @@
 use anyhow::Result;
 use dotenvy::dotenv;
+use schema::Message;
 use std::{env, time::Duration};
 use teloxide::{prelude::Requester, Bot, RequestError};
 use tokio::time::sleep;
@@ -26,9 +27,18 @@ async fn main() -> Result<()> {
 
     while let Some(msg) = message_stream.next().await {
         let payload: String = msg.get_payload()?;
-        println!("Received: {}", &payload);
+
+        let message = match serde_json::from_str::<Message>(&payload) {
+            Ok(message) => message,
+            Err(_) => {
+                println!("Badly formatted payload: {payload}");
+                continue;
+            }
+        };
+        println!("Received: {:#?}", message);
+
         loop {
-            match bot.send_message(chat_id.clone(), &payload).await {
+            match bot.send_message(chat_id.clone(), &message.text).await {
                 Ok(_) => break,
                 Err(err) => match err {
                     RequestError::RetryAfter(seconds) => {
