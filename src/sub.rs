@@ -44,7 +44,7 @@ async fn main() -> Result<()> {
         let mut send_message = bot.send_message(ChatId(message.chat_id), &message.text);
 
         if message.is_markdown {
-            send_message = send_message.parse_mode(ParseMode::MarkdownV2)
+            send_message = send_message.parse_mode(ParseMode::MarkdownV2);
         }
 
         if let Some(thread_id) = message.thread_id {
