@@ -2,7 +2,7 @@ use anyhow::Result;
 use dotenvy::dotenv;
 use schema::Message;
 use std::{env, time::Duration};
-use teloxide::{prelude::Requester, Bot, RequestError};
+use teloxide::{prelude::Requester, types::ChatId, Bot, RequestError};
 use tokio::time::sleep;
 use tokio_stream::StreamExt;
 
@@ -13,7 +13,6 @@ async fn main() -> Result<()> {
     dotenv()?;
 
     let channel = env::var("CHANNEL")?;
-    let chat_id = env::var("CHAT_ID")?;
 
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut pubsub = client.get_async_pubsub().await?;
@@ -38,7 +37,10 @@ async fn main() -> Result<()> {
         println!("Received: {:#?}", message);
 
         loop {
-            match bot.send_message(chat_id.clone(), &message.text).await {
+            match bot
+                .send_message(ChatId(message.chat_id), &message.text)
+                .await
+            {
                 Ok(_) => break,
                 Err(err) => match err {
                     RequestError::RetryAfter(seconds) => {
