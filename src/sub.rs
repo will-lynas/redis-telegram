@@ -36,11 +36,10 @@ async fn main() -> Result<()> {
         };
         println!("Received: {:#?}", message);
 
+        let send_message = bot.send_message(ChatId(message.chat_id), &message.text);
+
         loop {
-            match bot
-                .send_message(ChatId(message.chat_id), &message.text)
-                .await
-            {
+            match send_message.clone().await {
                 Ok(_) => break,
                 Err(err) => match err {
                     RequestError::RetryAfter(seconds) => {
