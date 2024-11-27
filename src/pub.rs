@@ -19,14 +19,15 @@ async fn main() -> Result<()> {
 
     let mut counter = 1;
     loop {
-        let message = serde_json::to_string(&Message {
+        let message = &Message {
             text: counter.to_string(),
             is_markdown: false,
             chat_id: chat_id.parse()?,
             thread_id: None,
-        })?;
-        con.publish::<_, _, ()>(&channel, &message).await?;
-        println!("Published: {}", message);
+        };
+        let message_ser = serde_json::to_string(&message)?;
+        con.publish::<_, _, ()>(&channel, &message_ser).await?;
+        println!("Published: {:#?}", message);
 
         counter += 1;
         sleep(Duration::from_secs(2)).await;
