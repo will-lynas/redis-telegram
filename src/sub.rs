@@ -5,7 +5,7 @@ use std::{env, time::Duration};
 use teloxide::{
     payloads::SendMessageSetters,
     prelude::Requester,
-    types::{ChatId, MessageId, ParseMode, ThreadId},
+    types::{ChatId, MessageId, ThreadId},
     Bot, RequestError,
 };
 use tokio::time::sleep;
@@ -42,10 +42,6 @@ async fn main() -> Result<()> {
         println!("Received: {:#?}", message);
 
         let mut send_message = bot.send_message(ChatId(message.chat_id), &message.text);
-
-        if message.is_markdown {
-            send_message = send_message.parse_mode(ParseMode::MarkdownV2);
-        }
 
         if let Some(thread_id) = message.thread_id {
             send_message = send_message.message_thread_id(ThreadId(MessageId(thread_id)));

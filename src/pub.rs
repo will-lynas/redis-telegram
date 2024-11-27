@@ -25,7 +25,6 @@ async fn main() -> Result<()> {
     loop {
         let message = &Message {
             text: counter.to_string(),
-            is_markdown: false,
             chat_id,
             thread_id,
         };
