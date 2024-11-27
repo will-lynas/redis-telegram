@@ -1057,6 +1057,8 @@ dependencies = [
  "anyhow",
  "dotenvy",
  "redis",
+ "serde",
+ "serde_json",
  "teloxide",
  "tokio",
  "tokio-stream",

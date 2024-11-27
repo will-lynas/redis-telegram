@@ -5,6 +5,8 @@ use teloxide::{prelude::Requester, Bot, RequestError};
 use tokio::time::sleep;
 use tokio_stream::StreamExt;
 
+mod schema;
+
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv()?;
