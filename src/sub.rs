@@ -30,16 +30,14 @@ async fn main() -> Result<()> {
         loop {
             match bot.send_message(chat_id.clone(), &payload).await {
                 Ok(_) => break,
-                Err(err) => {
-                    match err {
-                        RequestError::RetryAfter(seconds) => {
-                            println!("Rate limited for the next {seconds} seconds")
-                        }
-                        err => println!("Error sending message: {err}"),
+                Err(err) => match err {
+                    RequestError::RetryAfter(seconds) => {
+                        println!("Rate limited for the next {seconds} seconds")
                     }
-                    sleep(Duration::from_secs(1)).await;
-                }
+                    err => println!("Error sending message: {err}"),
+                },
             }
+            sleep(Duration::from_secs(1)).await;
         }
     }
 
