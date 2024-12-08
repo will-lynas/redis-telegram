@@ -1,18 +1,16 @@
 use anyhow::Result;
 use dotenvy::dotenv;
-use schema::Message;
 use std::{env, time::Duration};
 use teloxide::{prelude::Requester, types::ChatId, Bot, RequestError};
 use tokio::time::sleep;
 use tokio_stream::StreamExt;
-
-mod schema;
 
 #[tokio::main]
 async fn main() -> Result<()> {
     dotenv()?;
 
     let channel = env::var("CHANNEL")?;
+    let chat_id = ChatId(env::var("CHAT_ID")?.parse()?);
 
     let client = redis::Client::open("redis://127.0.0.1/")?;
     let mut pubsub = client.get_async_pubsub().await?;
@@ -25,18 +23,10 @@ async fn main() -> Result<()> {
     let bot = Bot::from_env();
 
     while let Some(msg) = message_stream.next().await {
-        let payload: String = msg.get_payload()?;
-
-        let message = match serde_json::from_str::<Message>(&payload) {
-            Ok(message) => message,
-            Err(_) => {
-                println!("Badly formatted payload: {payload}");
-                continue;
-            }
-        };
+        let message: String = msg.get_payload()?;
         println!("Received: {:#?}", message);
 
-        let send_message = bot.send_message(ChatId(message.chat_id), &message.text);
+        let send_message = bot.send_message(chat_id, &message);
 
         loop {
             match send_message.clone().await {
